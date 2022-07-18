@@ -1,0 +1,4 @@
+entidad:
+  src/BezierCurves/Curves.rs
+  src/BezierCurves/Point.rs
+  src/BezierCurves/Surface.rs
