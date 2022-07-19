@@ -1,4 +1,4 @@
 entidad:
-  Beziervice/src/BezierCurves/Curves.rs
-  Beziervice/src/BezierCurves/Point.rs
-  Beziervice/src/BezierCurves/Surface.rs
+  - Beziervice/src/BezierCurves/Curves.rs
+  - Beziervice/src/BezierCurves/Point.rs
+  - Beziervice/src/BezierCurves/Surface.rs
