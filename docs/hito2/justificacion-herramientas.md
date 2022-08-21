@@ -1,8 +1,4 @@
-# Beziervice
-
-__Service of Bézier's curves and surfaces__
-
-## Justificación de las herramientas para tests elegidas
+# Justificación de las herramientas para tests elegidas
 
 **Biblioteca de aserciones:**
 
@@ -26,21 +22,4 @@ El marco de tests integrado de rust se presenta como la opción más real y mejo
 
 **Task manager**
 
-Se ha considerado cargo, el task manager oficial de rust, pero dado que es posible que algunas tareas requieran la ejecución de varios comandos y llamadas encadenadas, he elegido usar GNU Make para poder encapsular las llamadas en un solo argumento de make. Además es una herramienta sencilla de utilizar y que normalmente se encuentra instalada en la gran mayoría de sistemas linux. En ella se encuentran de momento las tareas troncales de cualquier proyecto de Rust, __build, test y run__ las cuales pueden ser invocadas mediante __make 'tarea'__.
-
-
-## Decripción del problema, objetivos y lógica de negocio
-
-Tanto la descripción del problema, como los objetivos y lógica de negocio pueden ser consultados [aquí](./docs/hito0/objetivo-logica-negocio.md)
-
-### Historias de usuario, planificación y entidades
-
-Tanto las historias de usuario del proyecto, como los issues derivados de las mismas, la planificación del proyecto y sus productos minimamente viables representados como milestones en github y las entidades y objetos-valor se pueden consultar [aquí](./docs/hito1/planificacion-us-entidades.md)
-
-### Configuración de ramas para entregas
-
-Para la convocatoria extraordinaria, dado que realizarán las entregas con los espacios de tiempo de la convocatoria ordinaria, se pretende crear __una rama por hito del proyecto__ con el objetivo de que cada hito quede representado de la forma más fiel posible y que su evaluación sea más cómoda (también para organización personal, todo sea dicho). Así pues, la rama máster tendrá el desarrollo del proyecto, y se creará una rama por hito del proyecto, denominadas __hito0, hito1, hito2 etc__.
-
-### Configuración del entorno git
-
-La configuración del entorno de git se ha separado en otro documento para no alargar en exceso el documento readme y se puede consultar [aqui](./docs/hito0/configuracion-entorno-git.md).
+Se ha considerado cargo, el task manager oficial de rust, pero dado que es posible que algunas tareas requieran la ejecución de varios comandos y llamadas encadenadas, he elegido usar GNU Make para poder encapsular las llamadas en un solo argumento de make. Además es una herramienta sencilla de utilizar y que normalmente se encuentra instalada en la gran mayoría de sistemas linux.
