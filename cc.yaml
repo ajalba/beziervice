@@ -2,3 +2,13 @@ entidad:
   - Beziervice/src/BezierCurves/Curves.rs
   - Beziervice/src/BezierCurves/Point.rs
   - Beziervice/src/BezierCurves/Surface.rs
+
+lenguaje:
+  - rust
+
+test:
+  - Beziervice/src/curves.rs
+
+fichero_tareas: Makefile
+
+make: make
