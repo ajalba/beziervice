@@ -29,8 +29,16 @@ impl BezierCurve {
         }
         return aux_points[0].clone();
     }
-    fn evaluate(_curve: BezierCurve, _point: Point) -> Point {
-        todo!()
+    fn evaluate_point(_curve: BezierCurve, _point: f64) -> f64 {
+        _curve.expression.eval(_point)
+    }
+    fn evaluate_curve(_curve: BezierCurve, n_points: Option<i32>) -> Vec<f64> {
+        let len_vector = n_points.unwrap_or(1000);
+        let mut points = vec![];
+        for i in 0..len_vector {
+            points.push(_curve.expression.eval((i/1000).into()));
+        }
+        return points;
     }
     fn generate_curves(_points: Vec<Point>) -> Vec<BezierCurve> {
         todo!()
