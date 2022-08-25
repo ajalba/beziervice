@@ -10,7 +10,7 @@ Se quiere lograr construir la imagen y subirla a dockerhub cada vez que se haga 
 2. Login en dockerhub
 3. Construir y subir el contenedor a DockerHub
 
-Para eso se va a seguir la documentación oficial que se encuentra [aquí](https://docs.docker.com/ci-cd/github-actions/#set-up-a-docker-project). Como primer paso se crean los secrets de github con un access token y el username de Dockerhub. Es sencillo en **Settings -> Secrets -> New Repository Secret**, el resultado se puede ver en la imagen.
+Para eso se va a seguir la documentación oficial que se encuentra [aquí](https://docs.docker.com/ci-cd/github-actions/#set-up-a-docker-project). Como primer paso se crean los secrets de github con un access token y el username de Dockerhub. Es sencillo en **Settings -> Secrets -> New Repository Secret**, el resultado se puede ver en la imagen. El token solo aparecerá una vez, por lo que es importante hacer login en la CLI de docker si se desea o guardarlo directamente en los secrets de github.
 
 ![](./github-secret.png)
 
