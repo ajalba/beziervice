@@ -46,6 +46,9 @@ impl BezierCurve {
     fn aprox_function(_function: String, _grade: i32) -> Vec<Point> {
         todo!()
     }
+    fn must_split_curve(_curve: BezierCurve) -> bool {
+        _curve.points.len() > 10
+    }
 
 }
 #[cfg(test)]
