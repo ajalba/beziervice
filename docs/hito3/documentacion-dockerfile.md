@@ -1,6 +1,8 @@
 ## Justificación de la imagen elegida como base
 
-Existen varias imágenes oficiales de rust para la imagen del contenedor de test, en las cuales es posible elegir la versión de rust. La diferencia entre las imágenes es el tamaño, dado por los paquetes y dependencias que se encuentran en cada imagen y también por la imagen base del sistema operativo. Sin embargo se ha decidido en lugar de crear una imagen propia personalizada intentando logar un resultado de una imagen de tamaño mínimo.
+Existen varias imágenes oficiales de rust para la imagen del contenedor de test, en las cuales es posible elegir la versión de rust. La diferencia entre las imágenes es el tamaño, dado por los paquetes y dependencias que se encuentran en cada imagen y también por la imagen base del sistema operativo.
+
+En estos momentos para los binarios de ejecución se suelen crear imágenes en varios __stage__, donde se toma una imagen base oficial del lenguaje y se compila el programa en ella para luego crear una imagen más pequeña a partir de alguna distribución de tamaño reducido en la que se copia solo el binario generado por la imagen grande. A esto se le suele conocer como build "from scratch". Sin embargo se ha decidido en lugar de crear una imagen propia personalizada intentando logar un resultado de una imagen de tamaño mínimo, dado que el objetivo de este paso del proyecto es familiarizarse con docker y dado que en el comando que se empleará en los tests de entrega se realiza un enlace de los archivos del repositorio con la imagen, he decidido que sería mejor crear una imagen desde 0 en la que se utilice el gestor de tareas y los archivos del proyecto, mejor que una imagen que simplemente contendrá un binario ejecutable y make simplemente lo ejecute.
 
 La imagen base propia presenta el siguiente código:
 ```Dockerfile

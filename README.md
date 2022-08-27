@@ -2,32 +2,155 @@
 
 __Service of Bézier's curves and surfaces__
 
-## Justificación de las herramientas para tests elegidas
+Proyecto dedicado a la construcción de curvas de Bezier en rust de forma rápida, eficaz y reutilizable.
 
-**Biblioteca de aserciones:**
+En estos momentos el proyecto se encuentra en la fase de construcción de un entorno de test basado en docker y alojado en Dockerhub y Github Container Registry.
 
-Uno de los motivos por los que se ha seleccionado rust para este proyecto, ha sido el hecho de querer aprender el lenguaje de programación mediante un proyecto real. Rust incluye una biblioteca de asserciones TDD integrada en su ecosistema, cuyo uso esta muy extendendido en cada proyecto que he podido encontrar de tamaño mediano o grande. Esto no quita que se deban de investigar opciones de bibliotecas de aserciones implementadas con el objetivo de mejorar la propia de Rust.
+## Justificación de la imagen elegida como base
 
-Durante la investigación se han encontrado:
+Existen varias imágenes oficiales de rust para la imagen del contenedor de test, en las cuales es posible elegir la versión de rust. La diferencia entre las imágenes es el tamaño, dado por los paquetes y dependencias que se encuentran en cada imagen y también por la imagen base del sistema operativo.
 
-* [totems](https://crates.io/crates/totems): una biblioteca ligera de aserciones TDD, no se diferencia demasiado de la biblioteca estándar de rust, aunque aporta algo de flexibilidad al declarar aserciones, pero prácticamente no tiene usuarios, además las mejoras que provee no son significativas. Otro de los puntos que han hecho descartar la opción ha sido el hecho de que lleva 3 años sin recibir ninguna actualización.
+En estos momentos para los binarios de ejecución se suelen crear imágenes en varios __stage__, donde se toma una imagen base oficial del lenguaje y se compila el programa en ella para luego crear una imagen más pequeña a partir de alguna distribución de tamaño reducido en la que se copia solo el binario generado por la imagen grande. A esto se le suele conocer como build "from scratch". Sin embargo se ha decidido en lugar de crear una imagen propia personalizada intentando logar un resultado de una imagen de tamaño mínimo, dado que el objetivo de este paso del proyecto es familiarizarse con docker y dado que en el comando que se empleará en los tests de entrega se realiza un enlace de los archivos del repositorio con la imagen, he decidido que sería mejor crear una imagen desde 0 en la que se utilice el gestor de tareas y los archivos del proyecto, mejor que una imagen que simplemente contendrá un binario ejecutable y make simplemente lo ejecute.
 
-* [more_asserts](https://docs.rs/more-asserts/latest/more_asserts/): otra biblioteca de aserciones que añade debug en los mensajes y flexibilidad en los tipos de aserciones.
+La imagen base propia presenta el siguiente código:
+```Dockerfile
+ 
+FROM ubuntu:18.04
 
-* [pretty_assertions](https://github.com/colin-kiegel/rust-pretty-assertions): biblioteca que añade colores y amplifica los mensajes de fallo de las aserciones. Esta biblioteca recibió su última actualización en abril y es la opción más seguida y con más colaboración encontrada.
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:$PATH \
+    RUST_VERSION=1.58.0
 
-Finalmente me he decantado por **pretty_assertions** dado que sus mensajes de debug con colores en un formato que recuerda a las diff de plataformas como github hace que sea sencillo entender el fallo que ha hecho que el test no pase. Este formato ha sido hasta el momento de gran ayuda dado el tipo de programa que lidia con valores numéricos y fórmulas donde su formato facilita el debug.
+RUN apt-get update; \
+    apt-get install -y --no-install-recommends \
+    ca-certificates \
+    gcc \
+    libc6-dev \
+    wget \
+    make \
+    ; \
+    wget "https://static.rust-lang.org/rustup/archive/1.22.1/x86_64-unknown-linux-gnu/rustup-init"; \
+    chmod +x rustup-init; \
+    ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host x86_64-unknown-linux-gnu; \
+    useradd  berziervice; 
+WORKDIR /app/test
+CMD chown -R berziervice /app/test && su berziervice -c " PATH=/usr/local/cargo/bin:$PATH make test"
+```
+En la imagen se pueden ver los tamaños de las imágenes oficiales de rust y de la imagen creada.
 
-**Marco de pruebas:**
+![img-docker-rust](./docs/hito3/rust-docker-images.png)
 
-Para el marco de pruebas me he decantado por el marco de tests de rust, un sistema TDD que viene integrado en el ecosistema y que además es el mas popular. No parece haber muchas alternativas, no obstante también he considerado el sistema [spectral](https://docs.rs/spectral/latest/spectral/), que es un framework de tests que incluye su propia biblioteca influenciada por Google Truth y frameworks de tests destinados a que sus tests sean lo mas legibles posible. Esta opción ha sido descartada por su poco mantenimiento y su uso de macros, que pueden dar lugar a tiempos de compilación más altos. Como otra opción se encuentra [galvanic-test](https://github.com/mindsbackyard/galvanic-test) que tiene el mismo problema de mantenimiento. Esta biblioteca permite agrupar tests y establecer una organización propia, aunque también requiere de macros para su biblioteca de aserciones que pueden realentizar tiempos de compilación.
+En el código se toma un sistema operativo base, se crean las variables de entorno necesarias para rustup y cargo, se instala rustup y finalmente se crea el directorio de trabajo y se da un comando a ejecutar cuando el contenedor se ejecute. Esta imagen generada es, por poco, menor que las imágenes oficiales de rust, por lo que el objetivo ha sido conseguido. Se dispone de una imagen personalizada de Docker para nuestro contenedor de pruebas, con un tamaño mínimo.
 
-El marco de tests integrado de rust se presenta como la opción más real y mejor optimizada para este proyecto.
 
-**Task manager**
+## Dockerhub y actualización automática del contenedor
 
-Se ha considerado cargo, el task manager oficial de rust, pero dado que es posible que algunas tareas requieran la ejecución de varios comandos y llamadas encadenadas, he elegido usar GNU Make para poder encapsular las llamadas en un solo argumento de make. Además es una herramienta sencilla de utilizar y que normalmente se encuentra instalada en la gran mayoría de sistemas linux. En ella se encuentran de momento las tareas troncales de cualquier proyecto de Rust, __build, test y run__ las cuales pueden ser invocadas mediante __make 'tarea'__.
+El primer paso sería crear una cuenta personal en [Dockerhub](https://hub.docker.com/), una vez hecho esto es necesario crear un repositorio, tener un token personal y hacer log in. La documentación de la web es sencilla y completa, indicando incluso los comandos que es necesario copiar para iniciar tu primer repositorio.
 
+Una vez hecho esto, se crea una imagen, con nombre ```<hub-user>/<repo-name>```, con el comando ```docker build -t <hub-user>/<repo-name>[:<tag>]``` y se puede subir como primera vez de forma manual empleando el comando ```docker push <hub-user>/<repo-name>:<tag>```.
+
+Se quiere lograr construir la imagen y subirla a dockerhub cada vez que se haga un commit sobre la rama main, para ello se realizan las siguientes tareas:
+
+1. Comprobar el estado del repositorio
+2. Login en dockerhub
+3. Construir y subir el contenedor a DockerHub
+
+Para eso se va a seguir la documentación oficial que se encuentra [aquí](https://docs.docker.com/ci-cd/github-actions/#set-up-a-docker-project). Como primer paso se crean los secrets de github con un access token y el username de Dockerhub. Es sencillo en **Settings -> Secrets -> New Repository Secret**, el resultado se puede ver en la imagen. El token solo aparecerá una vez, por lo que es importante hacer login en la CLI de docker si se desea o guardarlo directamente en los secrets de github.
+
+![](./github-secret.png)
+
+El siguiente paso es hacer que el workflow se active cuando sucede un push a la rama main, después crear un trabajo que checkee el repositorio, haga login en Docker Hub y realice la actualización automática. A continuación se ha creado un workflow con el objetivo de cumplir las tareas previamente descritas:
+
+```
+
+name: Dockerhub abeljosesanchez
+
+# Controla cuando va a ejecutarse el workflow
+on:
+  # Trigger en push a la rama main
+  push:
+    branches: [ main ]
+
+# Trabajos del workflow
+jobs:
+  # Un solo trabajo llamado docker
+  docker:
+    
+    runs-on: ubuntu-latest
+
+    # Pasos del trabajo
+    steps:
+      # Checkea el repositorio
+      - name: checkout repo
+      - uses: actions/checkout@v3
+      # Login a Docker Hub
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.BEZIERVICE_ACCESS_TOKEN }}
+      #Crea y pushea la imagen al repositorio
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/beziervice
+```
+
+## Github container registry
+
+Dado que GitHub es una herramienta que se ha empleado a lo largo de todo el curso y en la que se confía, es lógico usar GitHub Container Registry que se puede integrar con mucha facilidad.
+Para ello ha sido necesario crear un token de acceso personal para github secrets y registrarse con él en docker, esto se ha hecho siguiendo la documentación oficial de github sobre token de acceso personal [(PAT)](https://docs.github.com/es/packages/working-with-a-github-packages-registry/working-with-the-container-registry).
+
+Una vez realizado esto, se ha introducido el token como __github secrets__ de la misma forma que en la sección de [Docker Hub](./dockerhub_config.md). Con esta configuración se ha creado un workflow parecido al workflow anterior, pero con facilidades de variables de entorno debido a estar trabajando con GitHub. La imagen resultante es un paquete del repositorio y se puede ver en la sección __packages__ del repositorio.
+
+Finalmente el workflow resultante es:
+
+```
+name: ghcr beziervice
+
+on:
+  push:
+    branches: ['main']
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@98669ae865ea3cffbcbaa878cf57c20bbf1c6c38
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@ad44023a93711e3deb337508980b4b5e9bcdc5dc
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+```
 
 ## Decripción del problema, objetivos y lógica de negocio
 
@@ -36,6 +159,10 @@ Tanto la descripción del problema, como los objetivos y lógica de negocio pued
 ### Historias de usuario, planificación y entidades
 
 Tanto las historias de usuario del proyecto, como los issues derivados de las mismas, la planificación del proyecto y sus productos minimamente viables representados como milestones en github y las entidades y objetos-valor se pueden consultar [aquí](./docs/hito1/planificacion-us-entidades.md)
+
+### Herramientas de test elegidas
+
+Para los tests del proyecto se han elegido una biblioteca de aserciones, en este caso ha sido [pretty_assertions](https://github.com/colin-kiegel/rust-pretty-assertions), se emplea el marco de test de Rust y el gestor de tareas es GNU make, si se quiere leer más en profundidad sobre las elecciones tomadas, la justificación se encuentra [aqui](./docs/hito2/justificacion-herramientas.md).
 
 ### Configuración de ramas para entregas
 

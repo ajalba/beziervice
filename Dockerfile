@@ -24,7 +24,7 @@ RUN apt-get update; \
     wget "https://static.rust-lang.org/rustup/archive/1.22.1/x86_64-unknown-linux-gnu/rustup-init"; \
     chmod +x rustup-init; \
     ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host x86_64-unknown-linux-gnu; \
-    useradd  berziervice; 
+    useradd  beziervice; 
 
 
 # Directorio de trabajo donde se montara el repositorio
@@ -33,4 +33,4 @@ WORKDIR /app/test
 # Al inicio del contenedor
 # 1. Da ownership al usuario beziervice en el WORKDIR
 # 2. Ejecuta make test
-CMD chown -R berziervice /app/test && su berziervice -c " PATH=/usr/local/cargo/bin:$PATH make test"
+CMD chown -R beziervice /app/test && chown -R beziervice /usr/local/cargo && su beziervice -c " PATH=/usr/local/cargo/bin:$PATH make test"
