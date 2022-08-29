@@ -1,0 +1,14 @@
+version: 2.1
+
+jobs:
+    test:
+        docker:
+            - image: abeljosesanchez/beziervice
+        steps:
+            - checkout
+            - run: make test
+
+workflows:
+    test_in_docker:
+        jobs:
+            - test
