@@ -9,6 +9,6 @@ jobs:
             - run: make test
 
 workflows:
-    test_in_docker:
+    test_docker:
         jobs:
             - test

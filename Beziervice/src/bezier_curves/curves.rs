@@ -1,4 +1,5 @@
 use mathru::algebra::abstr::Polynomial;
+use mathru::elementary::trigonometry::Trigonometry;
 
 use crate::bezier_curves::point::Point;
 #[derive(Clone)]
@@ -54,6 +55,10 @@ impl BezierCurve {
     }
     fn must_split_curve(_curve: BezierCurve) -> bool {
         _curve.points.len() > 10
+    }
+
+    fn fun_sin(_x: f64) -> f64 {
+        return Trigonometry::sin(_x);
     }
 
 }
