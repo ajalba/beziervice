@@ -81,12 +81,10 @@ impl BezierCurve {
         while left_limit < _b {
             if left_limit + _step < _b {
                 vi = left_limit;
-                wi = left_limit + _step*0.5;
                 vI = left_limit + _step;
             } else {
                 vi = left_limit;
-                wi = _b;
-                vI = left_limit + (_b + left_limit) * 0.5;
+                vI = _b
             }
             cvi = -0.25 * f((i-1.0)*_step) + f((i-0.5)*_step) - 0.5*f(i*_step) +
                 f((i+0.5)*_step) -0.25 * f((i+1.0)*_step);
@@ -100,7 +98,64 @@ impl BezierCurve {
             for j in 0..num_evals.into() {
                 values.push(pol.eval(
                     (
-                        (((j as f64)/num_evals as f64)*(cvI-cvi) as f64)-(i*_step)
+                        (((j as f64)/num_evals as f64)*(vI-vi) as f64)-(i*_step)
+                    ) / _step
+                ));
+            }
+
+            i = i + 1.0;
+            left_limit = left_limit + _step
+
+        }
+        return values;
+    }
+    pub fn cubic_c2_interpolant(_a: f64, _b:f64, _step: f64, f: fn(f64) -> f64) -> Vec<f64> {
+        let first_base_pol = Polynomial::from_coef(vec![1.0, -3.0, 3.0, -1.0]);
+        let second_base_pol = Polynomial::from_coef(vec![3.0, -6.0, 3.0, 0.0]);
+        let third_base_pol = Polynomial::from_coef(vec![-3.0, 3.0, 0.0, 0.0]);
+        let fourth_base_pol = Polynomial::from_coef(vec![1.0, 0.0, 0.0, 0.0]);
+        let mut i: f64 = 0.0;
+        let mut left_limit = _a.clone();
+        let mut values = Vec::<f64>::new();
+        let mut ui: f64 = 0.0;
+        let mut vi: f64 = 0.0;
+        let mut wi: f64 = 0.0;
+        let mut vI: f64 = 0.0;
+        let mut cvi: f64 = 0.0;
+        let mut cwi: f64 = 0.0;
+        let mut cvI: f64 = 0.0;
+        let mut cui: f64 = 0.0;
+        let mut pol = Polynomial::from_coef(vec![0.0]);
+        let num_evals: i32 = 10;
+
+
+        while left_limit < _b {
+            if left_limit + _step < _b {
+                vi = left_limit;
+                vI = left_limit + _step;
+            } else {
+                vi = left_limit;
+                vI = _b
+            }
+            cvi = -(1.0/36.0) * f((i-2.0)*_step) + (1.0/9.0) * f((i-1.0)*_step) + (6.0/5.0)*f(i*_step) +
+                (1.0/9.0) * f((i+1.0)*_step) - (1.0/36.0) * f((i+2.0)*_step);
+
+            cwi = -(1.0/9.0) * f((i-1.0)*_step) + (6.0/5.0)*f(i*_step) +
+            (1.0/3.0) * f((i+1.0)*_step) - (1.0/18.0) * f((i+2.0)*_step);
+
+            cui = -(1.0/18.0) * f((i-1.0)*_step) + (1.0/3.0) * f((i)*_step) + (6.0/5.0)*f((i+1.0)*_step)
+            -(1.0/9.0) * f((i+2.0)*_step);
+            cvI = -(1.0/36.0) * f((i-1.0)*_step) + (1.0/9.0) * f((i)*_step) + (6.0/5.0)*f((i+1.0)*_step) +
+            (1.0/9.0) * f((i+2.0)*_step) - (1.0/36.0) * f((i+3.0)*_step);
+            pol = Polynomial::from_coef(vec![cvi]) * first_base_pol.clone() +
+                Polynomial::from_coef(vec![cwi]) * second_base_pol.clone() +
+                Polynomial::from_coef(vec![cui]) * third_base_pol.clone() +
+                Polynomial::from_coef(vec![cvI]) * fourth_base_pol.clone();
+
+            for j in 0..num_evals.into() {
+                values.push(pol.eval(
+                    (
+                        (((j as f64)/num_evals as f64)*(vI-vi) as f64)-(i*_step)
                     ) / _step
                 ));
             }
@@ -166,8 +221,14 @@ mod tests {
     }
     #[test]
     fn cuaratic_c1_interpolant_works() {
-        let cal_values = vec![0.0, 0.0049986452042909075, 0.009996665929408238, 0.014994062175351985, 0.019990833942122158, 0.024986981229718753, 0.029982504038141768, 0.0349774023673912, 0.03997167621746707, 0.04496532558836934, -6.242188680533056e-5, 0.004935557484945376, 0.009931674325787232, 0.014925928635720238, 0.019918320414744402, 0.024908849662859712, 0.029897516380066172, 0.034884320566363786, 0.03986926222175255, 0.04485234134623246];
+        let cal_values = vec![0.0, 0.005000728938839476, 0.0100008328777237, 0.015000311816652673, 0.0199991657556264, 0.024997394694644872, 0.029994998633708095, 0.03499197757281606, 0.0399883315119688, 0.04498406045116626, -6.242188680533056e-5, 0.0049501672105271635, 0.009960882870168296, 0.01496972509211806, 0.019976693876376485, 0.024981789222943546, 0.029985011131819245, 0.03498635960300359, 0.03998583463649659, 0.04498343623229822];
         let fun_values = BezierCurve::cuadratic_c1_interpolant(0.0, 0.1, 0.05, BezierCurve::fun_sin);
+        assert_eq!(cal_values, fun_values);
+    }
+    #[test]
+    fn cubic_c2_interpolant_works () {
+        let cal_values = vec![0.0, 0.005513097600833195, 0.011905703606895853, 0.01895778469946251, 0.026449307559807726, 0.03416023886920601, 0.041870545308931924, 0.049360193560259995, 0.056409150304464806, 0.06279738222282083, -0.9831525990850775, -0.8426081639259776, -0.7145663420809947, -0.5984269586281894, -0.4935898386456215, -0.3994548072113524, -0.3154216894034423, -0.24089031029995167, -0.17526049497894103, -0.11793206851847124];
+        let fun_values = BezierCurve::cubic_c2_interpolant(0.0, 0.1, 0.05, BezierCurve::fun_sin);
         assert_eq!(cal_values, fun_values);
     }
 }
