@@ -6,4 +6,3 @@ run:
 	cargo run --manifest-path ./Beziervice/Cargo.toml
 install:
 	cargo build --release --manifest-path ./Beziervice/Cargo.toml
-	cp ./Beziervice/target/release/beziervice /usr/lib/beziervice
