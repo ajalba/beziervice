@@ -33,4 +33,4 @@ WORKDIR /app/test
 # Al inicio del contenedor
 # 1. Da ownership al usuario beziervice en el WORKDIR
 # 2. Ejecuta make test
-CMD chown -R beziervice /app/test && su beziervice -c " PATH=/usr/local/cargo/bin:$PATH make test"
+CMD chown -R beziervice /app/test && chown -R beziervice /usr/local/cargo && su beziervice -c " PATH=/usr/local/cargo/bin:$PATH make test"
