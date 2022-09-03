@@ -331,4 +331,14 @@ mod tests {
         let fun_values = BezierCurve::cubic_c2_interpolant(0.0, 0.1, 0.05, BezierCurve::fun_sin);
         assert_eq!(cal_values, fun_values);
     }
+    #[test]
+    fn construct_pol_vector_works() {
+        assert_eq!(
+            vec![
+                Polynomial::from_coef(vec![1.0]),
+                Polynomial::from_coef(vec![2.0])
+            ],
+            BezierCurve::construct_pol_vector(vec![1.0,2.0])
+        );
+    }
 }

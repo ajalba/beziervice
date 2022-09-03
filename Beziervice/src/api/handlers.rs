@@ -1,15 +1,19 @@
 
 use crate::bezier_curves::curves::BezierCurve;
-use actix_web::{web, HttpResponse, get };
+use actix_web::{web, HttpResponse, get, Responder};
 use serde::{ Deserialize, Serialize};
 use serde_json::json;
 
 #[derive(Clone)]
 #[derive(Deserialize, Serialize)]
 pub struct CurveBase {
-    points_x: Vec<f64>,
-    points_y: Vec<f64>,
-    points_z: Vec<f64>
+    pub points_x: Vec<f64>,
+    pub points_y: Vec<f64>,
+    pub points_z: Vec<f64>
+}
+#[derive(Serialize)]
+pub struct Vector {
+    pub points: Vec<f64>
 }
 
 pub async fn get_simple_curve() -> HttpResponse {
@@ -48,13 +52,13 @@ pub async fn evaluate_simple_curve(request: web::Json<CurveBase>) -> HttpRespons
         }
     )
 }
-#[get("/interpolate/{degree}")]
-pub async fn interpolate_function(_degree: web::Path<i32>) -> HttpResponse {
-    let degree = _degree.into_inner();
+#[get("/interpolate_function/{degree}")]
+pub async fn interpolate_function(_degree: web::Path<(i32,)>) -> impl Responder {
+    let degree = _degree.into_inner().0;
     let interpolated_points = match degree {
         2 => BezierCurve::cuadratic_c1_interpolant(0.0, 1.0, 0.05, BezierCurve::fun_sin),
         3 => BezierCurve::cubic_c2_interpolant(0.0, 1.0, 0.05, BezierCurve::fun_sin),
         _ => return HttpResponse::BadRequest().json(json!({ "error": "degree must be 2 or 3" }))
     };
-    return HttpResponse::Ok().json(interpolated_points);
+    return HttpResponse::Ok().json(Vector {points: interpolated_points});
 }
