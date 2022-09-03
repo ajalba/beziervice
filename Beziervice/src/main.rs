@@ -2,11 +2,11 @@
 mod bezier_curves;
 use actix_web::web::Json;
 use actix_web::{middleware::Logger, web, App, HttpServer};
+use api::handlers::*;
+use bezier_curves::curves::BezierCurve;
 use std;
-
-async fn status() -> Json<String> {
-    return Json("hello_world".to_string())
-}
+mod api;
+use crate::api::*;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -16,7 +16,15 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         let logger = Logger::default();
-        App::new().wrap(logger).route("/", web::get().to(status))
+        App::new().wrap(logger)
+        .service(
+        web::resource("/").route(web::get().to(get_simple_curve)),
+        
+        ).route("/evaluate_curve", web::post().to(evaluate_simple_curve))
+        .route("/create_curve", web::post().to(create_simple_curve))
+        .service(
+            web::resource("/interpolate/{degree}").route(web::get().to(get_simple_curve)),
+        )
     })
     .bind(("127.0.0.1", 8000))?
     .run()

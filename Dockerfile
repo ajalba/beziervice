@@ -6,7 +6,7 @@ FROM ubuntu:18.04
 ENV RUSTUP_HOME=/usr/local/rustup \
     CARGO_HOME=/usr/local/cargo \
     PATH=/usr/local/cargo/bin:$PATH \
-    RUST_VERSION=1.58.0
+    RUST_VERSION=1.63.0
 
 # 1. Instala dependencias y paquetes necesarios para rustup
 # 2. Descarga rustup para GNU/Linux x86_64 y da pertmisos y ejecuta.
@@ -24,6 +24,7 @@ RUN apt-get update; \
     wget "https://static.rust-lang.org/rustup/archive/1.22.1/x86_64-unknown-linux-gnu/rustup-init"; \
     chmod +x rustup-init; \
     ./rustup-init -y --no-modify-path --profile minimal --default-toolchain $RUST_VERSION --default-host x86_64-unknown-linux-gnu; \
+    chmod -R a+w $RUSTUP_HOME $CARGO_HOME; \
     useradd  beziervice; 
 
 
@@ -33,4 +34,4 @@ WORKDIR /app/test
 # Al inicio del contenedor
 # 1. Da ownership al usuario beziervice en el WORKDIR
 # 2. Ejecuta make test
-CMD chown -R beziervice /app/test && chown -R beziervice /usr/local/cargo && su beziervice -c " PATH=/usr/local/cargo/bin:$PATH make test"
+CMD chown -R beziervice /app/test && su beziervice -c " PATH=/usr/local/cargo/bin:$PATH make test"

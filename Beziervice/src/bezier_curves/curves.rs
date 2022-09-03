@@ -1,15 +1,35 @@
 use mathru::algebra::abstr::Polynomial;
 use mathru::elementary::trigonometry::Trigonometry;
-
+use serde::{ Deserialize, Serialize};
 use crate::bezier_curves::point::Point;
 #[derive(Clone)]
+#[derive(Deserialize, Serialize)]
 pub struct BezierCurve {
-    points: Vec<Point>,
+    points_x: Vec<f64>,
+    points_y: Vec<f64>,
+    points_z: Vec<f64>,
     grade: i8,
-    expression: Polynomial<f64>,
+    expression_x: String,
+    expression_y: String,
+    expression_z: String,
 }
 
 impl BezierCurve {
+    pub fn new(points_x: Vec<f64>, points_y: Vec<f64>, points_z: Vec<f64>) -> Self {
+        let pols_x = BezierCurve::construct_pol_vector(points_x.clone());
+        let pols_y = BezierCurve::construct_pol_vector(points_y.clone());
+        let pols_z = BezierCurve::construct_pol_vector(points_z.clone());
+        let grade = points_x.len()-1;
+        BezierCurve { 
+            points_x: points_x,
+            points_y: points_y, 
+            points_z: points_z,
+            grade: grade as i8,
+            expression_x: BezierCurve::generate_curve(pols_x).to_string(),
+            expression_y: BezierCurve::generate_curve(pols_y).to_string(),
+            expression_z: BezierCurve::generate_curve(pols_z).to_string()
+        }
+    }
     pub fn base_n_grade(_grade: i32) -> String {
         todo!()
     }
@@ -30,16 +50,48 @@ impl BezierCurve {
         }
         return aux_points[0].clone();
     }
-    fn evaluate_point(_curve: BezierCurve, _point: f64) -> f64 {
-        _curve.expression.eval(_point)
+    fn construct_pol_vector(_points: Vec<f64>) -> Vec<Polynomial<f64>> {
+        let mut pols = Vec::<Polynomial<f64>>::new();
+        for z in _points {
+            pols.push(Polynomial::from_coef(vec![z]));
+        }
+        pols
     }
-    fn evaluate_curve(_curve: BezierCurve, n_points: Option<i32>) -> Vec<f64> {
+    fn evaluate_point(_curve: BezierCurve, _point: f64, _axis: char) -> f64 {
+        let pol_vector: Vec<Polynomial<f64>>;
+        match _axis {
+            'x' => pol_vector = BezierCurve::construct_pol_vector(_curve.points_x),
+            'y' => pol_vector = BezierCurve::construct_pol_vector(_curve.points_y),
+            'z' => pol_vector = BezierCurve::construct_pol_vector(_curve.points_z),
+            _ => panic!()
+        }
+        let pol_curve = BezierCurve::generate_curve(pol_vector);
+        pol_curve.eval(_point)
+    }
+    pub fn evaluate_curve(_curve: BezierCurve, n_points: Option<i32>, _axis: char) -> Vec<f64> {
+        let pol_vector: Vec::<Polynomial<f64>>;
+        match _axis {
+            'x' => pol_vector = BezierCurve::construct_pol_vector(_curve.points_x),
+            'y' => pol_vector = BezierCurve::construct_pol_vector(_curve.points_y),
+            'z' => pol_vector = BezierCurve::construct_pol_vector(_curve.points_z),
+            _ => panic!()
+        }
+        let pol_curve = BezierCurve::generate_curve(pol_vector);
         let len_vector = n_points.unwrap_or(1000);
         let mut points = vec![];
         for i in 0..len_vector {
-            points.push(_curve.expression.eval((i / 1000).into()));
+            points.push(pol_curve.eval((i / 1000).into()));
         }
         return points;
+    }
+    pub fn evaluate_curve_all_axis(_curve: BezierCurve) -> (Vec<f64>, Vec<f64>, Vec<f64>) {
+        let curve_2 = _curve.clone();
+        let curve_3 = _curve.clone();
+        return (
+            BezierCurve::evaluate_curve(_curve, Option::<i32>::from(1000), 'x'),
+            BezierCurve::evaluate_curve(curve_2, Option::<i32>::from(1000), 'y'),
+            BezierCurve::evaluate_curve(curve_3, Option::<i32>::from(1000), 'z')
+        )
     }
     fn generate_curves(_points: Vec<Polynomial<f64>>, _grade: i32) -> Vec<Polynomial<f64>> {
         let mut curves = Vec::<Polynomial<f64>>::new();
@@ -55,7 +107,7 @@ impl BezierCurve {
         todo!()
     }
     fn must_split_curve(_curve: BezierCurve) -> bool {
-        _curve.points.len() > 10
+        _curve.points_x.len() > 10
     }
 
     pub fn fun_sin(_x: f64) -> f64 {
