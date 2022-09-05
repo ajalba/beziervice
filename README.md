@@ -10,7 +10,7 @@ En estos momentos es posible disponer de una base de datos integrada al proyecto
 
 ## Uso en su forma actual con base de datos
 
-La base de datos se encuentra alojada en una imagen docker que se lanza mediante docker-compose.
+La base de datos se encuentra alojada en una imagen docker que se lanza mediante docker-compose, es posible saber más en el fichero [docker-compose](./docker-compose.yml).
 Es necesario lanzar docker-compose. Una vez hecho esto se debe incluir en la carpeta __Beziervice__ un archivo .env para configurar la variable de entorno __DATABASE_URL=postgres://user:password@host/dbname__ siguiendo esta plantilla. El último paso de la configuración sería ejecutar en la carpeta __Beziervice__, el comando __diesel setup__ para levantar la base de datos.
 
 Una vez hecho esto, es suficiente con ejecutar make run y disponer así de un servicio web de curvas de Bézier.
