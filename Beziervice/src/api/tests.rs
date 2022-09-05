@@ -59,6 +59,7 @@ mod actix_tests {
         let request = test::TestRequest::post()
             .uri("/evaluate_curve")
             .set_json(json!(CurveBase{
+                name: "generic".to_string(),
                 points_x: vec![1.0, 2.0, 3.0],
                 points_y: vec![0.0,4.0,5.0],
                 points_z: vec![3.0, 5.0, 6.0]
@@ -82,6 +83,7 @@ mod actix_tests {
         let request = test::TestRequest::post()
             .uri("/create_curve")
             .set_json(json!(CurveBase{
+                name: "generic".to_string(),
                 points_x: vec![1.0, 2.0, 3.0],
                 points_y: vec![0.0,4.0,5.0],
                 points_z: vec![3.0, 5.0, 6.0]
