@@ -8,7 +8,6 @@ lenguaje:
 
 test:
   - Beziervice/src/bezier_curves/curves.rs
-  - Beziervice/src/api/tests.rs
 
 fichero_tareas: Makefile
 

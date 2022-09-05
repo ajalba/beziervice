@@ -9,9 +9,9 @@ pub struct BezierCurve {
     points_y: Vec<f64>,
     points_z: Vec<f64>,
     grade: i8,
-    pub expression_x: String,
-    pub expression_y: String,
-    pub expression_z: String,
+    expression_x: String,
+    expression_y: String,
+    expression_z: String,
 }
 
 impl BezierCurve {

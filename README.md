@@ -6,15 +6,6 @@ Proyecto dedicado a la construcción de curvas de Bezier en rust de forma rápid
 
 Tras tener los tests y la integración continua configuradas. El proyecto ha visto la luz como servicio web, donde se han configurado una serie de rutas destinadas a cumplir con las historias de usuario y que ofrecen interacción con curvas de Bézier para fomentar el buen uso de las mismas y optimizar el trabajo de otras personas con ellas.
 
-En estos momentos es posible disponer de una base de datos integrada al proyecto, donde el servicio web es capaz de realizar un CRUD de curvas de Bézier. Dicho CRUD consiste en crear, leer(read), actualizar(update) y eliminar(delete) curvas de la base de datos. Las rutas se explican con más detalle en su sección.
-
-## Uso en su forma actual con base de datos
-
-La base de datos se encuentra alojada en una imagen docker que se lanza mediante docker-compose, es posible saber más en el fichero [docker-compose](./docker-compose.yml).
-Es necesario lanzar docker-compose. Una vez hecho esto se debe incluir en la carpeta __Beziervice__ un archivo .env para configurar la variable de entorno __DATABASE_URL=postgres://user:password@host/dbname__ siguiendo esta plantilla. El último paso de la configuración sería ejecutar en la carpeta __Beziervice__, el comando __diesel setup__ para levantar la base de datos.
-
-Una vez hecho esto, es suficiente con ejecutar make run y disponer así de un servicio web de curvas de Bézier.
-
 ## Servicio Beziervice
 
 ### Framework elegido para el microservicio
@@ -35,17 +26,6 @@ Respecto a las curvas de Bézier, se ha creado el servicio de creación de curva
 
 En el otro servicio se pueden realizar peticiones get a /interpolate_curve/{grade}, donde el parámetro grade indica el grado del interpolante utilizado, en este momento 2 o 3. Esta petición devuelve una aproximación de la función seno.
 
-Finalmente para las rutas del CRUD he elegido la ruta __get_function/{id}__ para obtener la curva de Bézier de la base de datos indicada por el id. Para crear una curva se ha seleccionado la ruta __create_curve__ que mediante una peticion post con el json que aparece en el ejemplo creará una curva y devolverá los dato de la misma en formato json. Para actualizar una curva se requiere del mismo Json pero añadiendo el campo __id__ y realizando una petición put, como indica el protocolo HTPP para actualizaciones. Finalmente para eliminar una curva se ha decidido emplear la petición de tipo delete, a la ruta __/delete_curve__, con un Json como cuerpo cuyo único campo es el id de la curva. La curva eliminada se devuelve como cuerpo de la respuesta. 
-
-``` json
-{
-    "name": "IT WORKS",
-    "points_x": [0.0, 1.0, 2.0],
-    "points_y": [1.0, 1.0, 2.0],
-    "points_z": [0.0, 1.0, 3.0]
-}
-```
-
 ### Logger y middleware
 
 Se ha empleado el middleware de actix pues es el que mejor integración presenta y para los logs se ha utilizado el logger [simple_logger](https://crates.io/crates/simple_logger), que es el logger de mayor versión y soporte encontrado y que ofrece logs verbose y de facil lectura.
@@ -58,9 +38,8 @@ Los tests añadidos a las rutas del servicio web consiguen cerrar las siguientes
 
 - [[HU1] Como usuario, dado que trabajo a diario con curvas en 3D, quiero poder crear una curva de Bézier a partir de una serie de puntos de control y almacenarla para poder recuperarla y reutilizarla en el futuro.](https://github.com/ajalba/beziervice/issues/1)
 
-- [[HU2] Como administrador, para poder dar un servicio reutilizable, debo poder identificar una curva de forma única para recuperarla y alterarla si es necesario.](https://github.com/ajalba/beziervice/issues/2)
+Lo cual comprende la mitad de las historias de usuario pleadas en el proyecto, a falta de conexión con la base de datos y algoritmos, el objetivo principal del proyecto se ve representado por la lógica representada en el código.
 
-Lo cual comprende 3 de las 4 historias de usuario planteadas para el proyecto, por lo que a falta de los algoritmos de superficies, se han cumplido una cantidad considerable de objetivos del proyecto, además de sentar una base y estructura adecuadas para su propio escalado.
 
 ## Integración continua, configuración en diferentes sistemas
 
