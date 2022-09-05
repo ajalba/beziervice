@@ -69,28 +69,4 @@ mod actix_tests {
         let response = test::call_service(&mut test, request).await;
         assert!(response.status().is_success());
     }
-
-    #[actix_web::test]
-    async fn test_create_curve() {
-        let mut test = test::init_service(
-            App::new().service(
-                web::resource("/create_curve").route(web::post().to(create_simple_curve)),
-                
-                )
-        )
-        .await;
-
-        let request = test::TestRequest::post()
-            .uri("/create_curve")
-            .set_json(json!(CurveBase{
-                name: "generic".to_string(),
-                points_x: vec![1.0, 2.0, 3.0],
-                points_y: vec![0.0,4.0,5.0],
-                points_z: vec![3.0, 5.0, 6.0]
-            }))
-            .to_request();
-
-        let response = test::call_service(&mut test, request).await;
-        assert!(response.status().is_success());
-    }
 }
